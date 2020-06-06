@@ -1,11 +1,16 @@
 const express = require('express')
-const app = express()
-const models = require('./models')
 const host = require("ip").address();
-const port = 8080
+require('dotenv').config()
 
-app.listen(port, () => {
-    console.log("App listening at http://%s:%s", host, port);
+const models = require('./models')
+const app = express()
+
+const port = process.env.PORT
+
+models.sequelize.sync().then(() => {
+    app.listen(port, () => {
+        console.log("App listening at http://%s:%s", host, port);
+    })
 })
 
 app.get('/', (req, res) => {
