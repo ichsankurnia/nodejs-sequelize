@@ -1,4 +1,5 @@
 'use strict';
+
 module.exports = (sequelize, DataTypes) => {
 	const User = sequelize.define('User', {
         user_id: {
@@ -9,10 +10,10 @@ module.exports = (sequelize, DataTypes) => {
         username_var: {
             type: DataTypes.STRING(20),
             allowNull: false,
-			// unique: true,
+			unique: true,
 			validate: {
-				// isAlphanumeric: true,
-				// isLowercase: true,
+				isAlphanumeric: true,
+				isLowercase: true,
 				notNull: true,
 				notEmpty: true,
 				max: 20,
@@ -35,14 +36,6 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.BOOLEAN,
             allowNull: false 
         },
-        createdAt: {
-            type: DataTypes.DATE,
-            allowNull: true 
-        },
-        updatedAt: {
-            type: DataTypes.DATE,
-            allowNull: true
-        },
     }, 
     { 
         schema: 'sequelize_test',
@@ -51,21 +44,21 @@ module.exports = (sequelize, DataTypes) => {
     });
 
     User.removeAttribute('id');
-    // User.removeAttribute('createdAt');
+	// User.removeAttribute('createdAt');
 	// User.removeAttribute('updatedAt');
-	
+
 	// User.associate = function(models) {
-    //     User.hasMany(models.UserSetting, {
+	//       User.hasMany(models.UserSetting, {
 	// 		foreignKey: 'user_id',
 	// 		onDelete: 'CASCADE',
-    //     });
-        
+	//       });
+
 	// 	User.belongsTo(models.UserGroup, {
 	// 		foreignKey: 'user_group_id',
 	// 		onDelete: 'CASCADE',
-    //     });
-        
-    //     User.belongsTo(models.Employees, {
+	//       });
+
+	//       User.belongsTo(models.Employees, {
 	// 		foreignKey: 'employee_id',
 	// 		onDelete: 'CASCADE',
 	// 	});
