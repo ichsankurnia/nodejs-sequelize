@@ -22,19 +22,18 @@ module.exports = (sequelize, DataTypes) => {
         },
         password_var: {
             type: DataTypes.STRING(255),
-            allowNull: false 
+            allowNull: false
         },
         email_var: {
             type: DataTypes.STRING(255),
-            allowNull: true 
+            allowNull: true,
+            validate: {
+                isEmail: true
+            }
         },
         token_text: {
             type: DataTypes.TEXT,
             allowNull: true 
-        },
-        active_status_boo: {
-            type: DataTypes.BOOLEAN,
-            allowNull: false 
         },
     }, 
     { 
