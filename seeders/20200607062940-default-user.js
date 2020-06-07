@@ -21,7 +21,7 @@ module.exports = {
 				{
 					username_var: 'admin',
 					password_var: 'admin123',
-					email_var: 'example@example.com',
+					email_var: 'admin@gmail.com',
 					token_text: '',
 					created_at: new Date(),
 					updated_at: new Date()
