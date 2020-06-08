@@ -6,8 +6,8 @@ require('dotenv').config()
 const app = express()
 const port = process.env.PORT
 
-const models = require('./database/models')
-const route = require('./routes')
+const models = require('./models')
+const route = require('./routes/route')
 
 
 app.use(bodyParser.json());
