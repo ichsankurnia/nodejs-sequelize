@@ -1,10 +1,10 @@
 const jwt = require('jsonwebtoken')
-const models = require('../../database/models')
+const models = require('../../models')
 
 const login = async (req, res) => {
     try {
-        const {username, password, remember_boo} = req.body
-        const data = await models.User.findOne({where: {username_var: username, password_var: password}})
+        const {username_var, password_var, remember_boo} = req.body
+        const data = await models.User.findOne({where: {username_var: username_var, password_var: password_var}})
 
         if(data){
             
