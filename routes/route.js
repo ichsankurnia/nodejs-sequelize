@@ -16,6 +16,8 @@ router.get('/', (req, res) => res.status(200).json(
 router.post('/auth', auth.login);
 
 // user
+router.post('/user', controllerUser.createData)
 router.get('/user', isAuthenticated, controllerUser.getAllData);
+router.get('/user/:id', isAuthenticated, controllerUser.getDataById)
 
 module.exports = router;
