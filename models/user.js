@@ -12,10 +12,10 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false,
 			unique: true,
 			validate: {
-				isAlphanumeric: true,
-				isLowercase: true,
+				// isAlphanumeric: true,
+				// isLowercase: true,
 				notNull: true,
-				notEmpty: true,
+				// notEmpty: true,
 				max: 20,
 				min: 5
 			}
