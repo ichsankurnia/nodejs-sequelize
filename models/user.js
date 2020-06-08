@@ -15,14 +15,18 @@ module.exports = (sequelize, DataTypes) => {
 				// isAlphanumeric: true,
 				// isLowercase: true,
 				notNull: true,
-				// notEmpty: true,
+				notEmpty: true,
 				max: 20,
 				min: 5
 			}
         },
         password_var: {
             type: DataTypes.STRING(255),
-            allowNull: false
+            allowNull: false,
+            validate: {
+                notNull: true,
+				notEmpty: true,
+            }
         },
         email_var: {
             type: DataTypes.STRING(255),
