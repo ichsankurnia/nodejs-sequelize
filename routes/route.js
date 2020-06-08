@@ -4,7 +4,7 @@ const { Router } = require('express');
 const isAuthenticated = require('../app/middlewares/verify-token')
 const auth = require('../app/middlewares/authenticate');
 // import controller
-const controllerUser = require('../app/controllers/user')
+const controllerUser = require('../app/controllers/controller-user')
 
 const router = Router();
 
@@ -16,8 +16,9 @@ router.get('/', (req, res) => res.status(200).json(
 router.post('/auth', auth.login);
 
 // user
-router.post('/user', controllerUser.createData)
 router.get('/user', isAuthenticated, controllerUser.getAllData);
 router.get('/user/:id', isAuthenticated, controllerUser.getDataById)
+router.post('/user', controllerUser.createData)
+router.put('/user/:id', isAuthenticated, controllerUser.updateData)
 
 module.exports = router;
