@@ -35,6 +35,12 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.TEXT,
             allowNull: true 
         },
+        createdAt:{
+            type: DataTypes.DATE,allowNull: true, defaultValue: DataTypes.DATE.NOW
+        },
+        updatedAt:{
+            type: DataTypes.DATE,allowNull: true, defaultValue: DataTypes.DATE.NOW
+        }
     }, 
     { 
         schema: 'sequelize_test',
