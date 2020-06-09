@@ -25,7 +25,7 @@ const getDataById = async (req, res) => {
         if (data){
             return res.json({code: 0, message: 'success', data})
         }else{
-            return res.json({code: 1, message: "data not found", data})
+            return res.json({code: 1, message: "data with the specified ID does not exists", data})
         }
     } catch (error) {
         return res.json({code: 1, message: error.message, data: null})
@@ -41,7 +41,7 @@ const createData = async (req, res) => {
         if(data){
             return res.status(201).json({code: 0, message: 'data successfully added', data})
         }else{
-            return res.json({code: 1, message: "data failed added", data})
+            return res.json({code: 1, message: "data failed added", data: null})
         }
 
     } catch (error) {
@@ -59,7 +59,7 @@ const updateData = async (req, res) => {
 
         const data = await models.User.findOne({ where :{user_id : id} })
 
-        console.log(data)
+        // console.log(data)
         if(data){
             const update = await models.User.update({
                 username_var,
@@ -70,20 +70,66 @@ const updateData = async (req, res) => {
 
             if(update){
                 const updateData = await models.User.findOne({ where : {user_id: id}})
-                
-                return res.json({code: 0, message: 'data successfully updated', updateData})
+
+                return res.json({code: 0, message: 'data successfully updated', data: updateData})
             }else{
-                return res.json({code: 1, message: 'data failed updated', data})
+                return res.json({code: 1, message: 'data failed updated', data: null})
             }
         }else{
-            return res.json({code: 1, message: 'data not found', data})
+            return res.json({code: 1, message: 'data with the specified ID does not exists', data})
         }
     } catch (error) {
-        console.log(error)
-        if(error.errors) return res.status(400).send({code: 1, message: error.errors[0].message, data: null})
-        else return res.status(400).send({code: 1, message: error, data: null})
+        // console.log(error)
+        if(error.errors) return res.status(400).json({code: 1, message: error.errors[0].message, data: null})
+        else return res.status(400).json({code: 1, message: error, data: null})
     }
 }
 
+
+
+// Delete data
+const deleteData = async (req, res) => {
+    try {
+        const { id } = req.params
+
+        const data = await models.User.findOne({ where: {user_id: id} })
+
+        if(data){
+            const deleteData = await models.User.destroy({ where: { user_id: id} })
+    
+            if(deleteData){
+                return res.json({code: 0, message: 'data successfully deleted', data: deleteData})
+            }else{
+                return res.json({code: 1, message: 'data failed deleted', data: null})
+            }
+        }else{
+            return res.json({code: 1, message: 'data with the specified ID does not exists', data: null})
+        }
+
+    } catch (error) {
+        return res.status(400).json({code: 1, message: error.message, data: null})
+    }
+}
+
+
+// Truncate data
+const truncateData = async (req, res) => {
+    try {
+        await models.User.destroy({truncate: true, restartIdentity: true})
+        
+        return res.json({code: 0, message: 'data successfully truncate', data: null})
+    } catch (error) {
+        return res.status(400).json({code: 1, message: error.message, data: null})
+    }
+}
+
+
 //note export module pake {}, import module y, panggil fungsinya y.getAllData, jika tidak ada {}, panggil fungsi sama dg yg di import
-module.exports = {createData, getAllData, getDataById, updateData}
+module.exports = {
+    getAllData, 
+    getDataById, 
+    createData, 
+    updateData, 
+    deleteData,
+    truncateData,
+}

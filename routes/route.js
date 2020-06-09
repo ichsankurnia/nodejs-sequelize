@@ -16,9 +16,11 @@ router.get('/', (req, res) => res.status(200).json(
 router.post('/auth', auth.login);
 
 // user
-router.get('/user', isAuthenticated, controllerUser.getAllData);
-router.get('/user/:id', isAuthenticated, controllerUser.getDataById)
-router.post('/user', controllerUser.createData)
-router.put('/user/:id', isAuthenticated, controllerUser.updateData)
+router.get('/user',             isAuthenticated, controllerUser.getAllData);
+router.get('/user/:id',         isAuthenticated, controllerUser.getDataById)
+router.post('/user',                             controllerUser.createData)
+router.put('/user/:id',         isAuthenticated, controllerUser.updateData)
+router.delete('/user/:id',      isAuthenticated, controllerUser.deleteData)
+router.delete('/truncate-user', isAuthenticated, controllerUser.truncateData)
 
 module.exports = router;
