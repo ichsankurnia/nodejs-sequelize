@@ -27,4 +27,6 @@ models.sequelize.sync({alter:true}).then(() => {
     app.listen(port, () => {
         console.log("App listening at http://%s:%s", host, port);
     })
+}).catch((err) => {
+    console.log('Unable to connect to the database: ', err);
 })
