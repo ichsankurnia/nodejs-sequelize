@@ -1,4 +1,5 @@
 const express = require('express')
+const path = require('path')
 const bodyParser    = require('body-parser'); // turns response into usable format
 const host = require("ip").address();
 require('dotenv').config()
@@ -9,13 +10,16 @@ const port = process.env.PORT
 const models = require('./models')
 const route = require('./routes/route')
 
-
+app.use(express.static(path.join(__dirname, 'public')));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false}));
 
 app.get('/', (req, res) => {
-    res.status(200).json({ author: 'Ichsan Kurniawan', contact: 'kurniaichsan45@gmail.com', description: 'Rest API with nodejs express sequelize postgre' })
+    res.send({ author: 'Ichsan Kurniawan', contact: 'kurniaichsan45@gmail.com', description: 'Rest API with nodejs express sequelize postgre' })
 })
+// route for static file (html css js img)
+app.use('/static', express.static(path.join(__dirname, 'public')))
+// app.use('/public', express.static(path.join(__dirname, 'public')))
 
 // Route API
 app.use('/api/', route)
