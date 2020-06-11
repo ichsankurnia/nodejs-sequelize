@@ -144,14 +144,6 @@ const createPost = async (req, res) => {
             const urlFIle = await "http://" + req.headers.host + '/static/assets/img/upload/' + titleImg(title) + '.png'
             console.log(urlFIle)
 
-            await fs.rename(tempPath, targetPath, err => {
-                if (err){
-                    console.log(err);
-                    return res.send(500)
-                }
-
-            })
-
             const data = await models.Post.create({
                 post_title: title,
                 post_body : body,
@@ -161,6 +153,13 @@ const createPost = async (req, res) => {
             })
 
             if(data){
+                await fs.rename(tempPath, targetPath, err => {
+                    if (err){
+                        console.log(err);
+                        return res.send(500)
+                    }
+                })
+
                 return res.status(201).json({code: 0, message: 'new post successfully added', data})
             }else{
                 return res.json({code: 1, message: "new post failed added", data: null})
