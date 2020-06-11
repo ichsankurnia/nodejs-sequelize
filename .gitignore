@@ -105,4 +105,4 @@ dist
 
 #
 tmp/
-public/assets/img/
+# public/assets/img/
