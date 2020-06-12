@@ -42,7 +42,8 @@ var upload = multer({storage: storage})
 // post
 router.get('/post',             isAuthenticated, controllerPost.getAllPost)
 router.get('/post/:id',         isAuthenticated, controllerPost.getPostById)
-router.post('/new-post',        isAuthenticated, controllerPost.createNewPost)
 router.post('/post',            isAuthenticated, upload.single('file'), controllerPost.createPost)
+router.put('/post/:id',         isAuthenticated, upload.single('file'), controllerPost.updatePost)
+// router.delete('/post/:id',         isAuthenticated, controllerPost.deletePost)
 
 module.exports = router;

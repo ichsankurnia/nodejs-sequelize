@@ -1,88 +1,7 @@
-const multer = require('multer');
 const fs = require('fs');
 const path = require('path')
 
 const models = require('../../models')
-// const upload = multer({ dest: '/tmp/'});
-
-//set storage engine
-var storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-      cb(null, '../..public/images/uploads')
-    },
-    filename: (req, file, cb) => {
-      cb(null, file.fieldname + '-' + Date.now())
-    }
-});
-
-var upload = multer({storage: storage}).single('file');     // file is req name
-
-const createNewPost = async (req, res) => {
-    try {
-        console.log("Req Body => ", req.body)
-        const {title, body, author, category_id} = req.body
-        // const file = global.appRoot + '/uploads/' + req.file.filename;
-        console.log("Req file => ", req.file)
-
-        if(req.file){
-            console.log("Req file => ", req.file)
-            const file = req.file.filename;
-    
-            const uploaded = await upload(req, res, err => {
-                if (err){
-                    console.log(err)
-                    res.send(500)
-                }
-                return true
-            })
-
-            if(uploaded){
-                const data = await models.Post.create({
-                    post_title: title,
-                    post_body : body,
-                    thumbnail_url : file,
-                    author: author,
-                    category_id: category_id
-                })
-    
-                if(data){
-                    return res.status(201).json({code: 0, message: 'new post successfully added', data})
-                }else{
-                    return res.json({code: 1, message: "new post failed added", data: null})
-                }
-            }
-        }else{
-            const data = await models.Post.create({
-                post_title: title,
-                post_body : body,
-                thumbnail_url : "file",
-                author: author,
-                category_id: category_id
-            })
-
-            if(data){
-                return res.status(201).json({code: 0, message: 'new post successfully added', data})
-            }else{
-                return res.json({code: 1, message: "new post failed added", data: null})
-            }
-        }
-    } catch (error) {
-        console.log(error)
-        if(error.errors) return res.status(400).send({code: 1, message: error.errors[0].message, data: null})
-        else return res.status(400).send({code: 1, message: error, data: null})
-    }
-}
-
-// router.post('/addPicture', function(req, res){
-//     upload(req, res, err => {
-//         if (err) throw err
-//         var sql = "INSERT INTO product (picture)"     
-//         VALUES('"+req.file.filename+"');
-//         connection.query(sql, function(err, results){
-//          //script lain misal redirect atau alert :D 
-//         })
-//     });
-// });
 
 
 // Get all post
@@ -135,9 +54,6 @@ const createPost = async (req, res) => {
 
         const {title, body, author, category_id} = req.body
 
-        console.log("req.body => ", req.body)
-        console.log("req.file => ", req.file)
-
         if(req.file){
             const tempPath = await req.file.path
             const targetPath = await path.join(__dirname, './../../public/assets/img/upload/' + titleImg(title) + ".png")
@@ -147,7 +63,8 @@ const createPost = async (req, res) => {
             const data = await models.Post.create({
                 post_title: title,
                 post_body : body,
-                thumbnail_url : urlFIle,
+                // thumbnail_url : urlFIle,
+                thumbnail_url : targetPath,
                 author: author,
                 category_id: category_id
             })
@@ -181,30 +98,85 @@ const createPost = async (req, res) => {
 
     } catch (error) {
         console.log(error)
-        if(error.errors) return res.status(400).send({code: 1, message: error.errors[0].message, data: null})
+        if(error.errors){
+            const tempPath = await req.file.path
+            fs.unlink(tempPath, err => console.log(err))
+
+            return res.status(400).send({code: 1, message: error.errors[0].message, data: null})
+        }
         else return res.status(400).send({code: 1, message: error, data: null})
     }
 }
 
 
-// app.post('/categories', upload.single('file'), (req,res) => {
-//     const file = global.appRoot + '/uploads/' + req.file.filename;
-    // fs.rename(req.file.path, file, function(err) {
-//         if (err) {
-//             console.log(err);
-//             res.send(500);
-//         } 
-//         else {
-//                 db.Category.create({
-//                     name: req.body.name,
-//                     description: req.body.description,
-//                     poster : req.file.filename
-//                 })
-//                 .then(r =>  {
-//                 res.send(r.get({plain:true}));
-//                 });
-//         }
-//         });
-// })
+const updatePost = async (req, res) => {
+    try {
 
-module.exports = { getAllPost, getPostById, createPost, createNewPost}
+        const { id } = req.params
+        const {title, body, author, category_id} = req.body
+
+        const data = await models.Post.findOne({ where : {post_id: id} })
+
+        if(data){
+            if(req.file){
+                const tempPath = await req.file.path
+                const targetPath = await path.join(__dirname, './../../public/assets/img/upload/' + titleImg(title) + ".png")
+  
+                const update = await models.Post.update({
+                    post_title: title,
+                    post_body : body,
+                    thumbnail_url: targetPath,
+                    author: author,
+                    category_id: category_id,
+                    update_at: new Date()
+                }, {where : {post_id: id} })
+    
+                if(update){
+                    await fs.rename(tempPath, targetPath, err => {
+                        if (err){
+                            console.log(err);
+                            return res.send(500)
+                        }
+                    })
+
+                    const updateData = await models.Post.findOne({where: {post_id: id} })
+
+                    return res.status(201).json({code: 0, message: 'post successfully updated', data: updateData})
+                }else{
+                    return res.json({code: 1, message: "post failed updated", data: null})
+                }
+            }else{
+                const update = await models.Post.update({
+                    post_title: title,
+                    post_body : body,
+                    author: author,
+                    category_id: category_id,
+                    update_at: new Date()
+                }, {where : {post_id: id} })
+    
+                if(update){
+                    const updateData = await models.Post.findOne({where: {post_id: id} })
+
+                    return res.status(201).json({code: 0, message: 'post successfully updated, no files updated', data: updateData})
+                }else{
+                    return res.json({code: 1, message: "post failed updated", data: null})
+                }
+            }
+        }else{
+            return res.json({code: 1, message: "post's with the specified ID does not exists", data: null})
+        }
+
+    } catch (error) {
+        console.log(error)
+        if(error.errors){
+            const tempPath = await req.file.path
+            fs.unlink(tempPath, err => console.log(err))
+
+            return res.status(400).send({code: 1, message: error.errors[0].message, data: null})
+        }
+        else return res.status(400).send({code: 1, message: error, data: null})
+    }
+}
+
+
+module.exports = { getAllPost, getPostById, createPost, updatePost }
