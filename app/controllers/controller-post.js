@@ -29,7 +29,7 @@ const getPostById = async (req, res) => {
         if(data){
             return res.json({code: 0, message: 'success', data})
         }else{
-            return res.json({code: 0, message: 'post with the specified ID does not exists', data: null})
+            return res.json({code: 1, message: 'post with the specified ID does not exists', data: null})
         }
     } catch (error) {
         return res.json({code: 1, message: error.message, data: null})
@@ -109,6 +109,7 @@ const createPost = async (req, res) => {
 }
 
 
+// Update post
 const updatePost = async (req, res) => {
     try {
 
@@ -121,6 +122,13 @@ const updatePost = async (req, res) => {
             if(req.file){
                 const tempPath = await req.file.path
                 const targetPath = await path.join(__dirname, './../../public/assets/img/upload/' + titleImg(title) + ".png")
+
+                // delete image yg lama
+                await fs.unlink(data.dataValues.thumbnail_url, err => {
+                    if(err){
+                        console.log(err)
+                    }
+                })
   
                 const update = await models.Post.update({
                     post_title: title,
@@ -179,4 +187,38 @@ const updatePost = async (req, res) => {
 }
 
 
-module.exports = { getAllPost, getPostById, createPost, updatePost }
+// Delete post
+const deletePost = async (req, res) => {
+    try {
+        
+        const { id } = req.params
+
+        const data = await models.Post.findOne({ where: {post_id: id} })
+
+        if(data){
+            const deleteData = await models.Post.destroy({ where: { post_id: id} })
+    
+            if(deleteData){
+                const imgPath = data.dataValues.thumbnail_url
+
+                fs.unlink(imgPath, err => {
+                    if(err){
+                        console.log(err)
+                        res.sendStatus(500)
+                    }
+                })
+
+                return res.json({code: 0, message: 'data successfully deleted', data: deleteData})
+            }else{
+                return res.json({code: 1, message: 'data failed deleted', data: null})
+            }
+        }else{
+            return res.json({code: 1, message: "post's with the specified ID does not exists", data: null})
+        }
+
+    } catch (error) {
+        if(error.message) return res.status(400).send({code: 1, message: error.message, data: null})
+        else return res.status(400).send({code: 1, message: error, data: null})
+    }
+}
+module.exports = { getAllPost, getPostById, createPost, updatePost, deletePost }

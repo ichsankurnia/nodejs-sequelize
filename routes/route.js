@@ -44,6 +44,6 @@ router.get('/post',             isAuthenticated, controllerPost.getAllPost)
 router.get('/post/:id',         isAuthenticated, controllerPost.getPostById)
 router.post('/post',            isAuthenticated, upload.single('file'), controllerPost.createPost)
 router.put('/post/:id',         isAuthenticated, upload.single('file'), controllerPost.updatePost)
-// router.delete('/post/:id',         isAuthenticated, controllerPost.deletePost)
+router.delete('/post/:id',         isAuthenticated, controllerPost.deletePost)
 
 module.exports = router;
