@@ -90,7 +90,7 @@ const createPost = async (req, res) => {
             })
 
             if(data){
-                return res.status(201).json({code: 0, message: 'new post successfully added', data})
+                return res.status(201).json({code: 0, message: 'new post successfully added, no file uploaded', data})
             }else{
                 return res.json({code: 1, message: "new post failed added", data: null})
             }
@@ -99,12 +99,14 @@ const createPost = async (req, res) => {
     } catch (error) {
         console.log(error)
         if(error.errors){
-            const tempPath = await req.file.path
-            fs.unlink(tempPath, err => console.log(err))
+            if(req.file){
+                const tempPath = await req.file.path
+                fs.unlink(tempPath, err => console.log(err))
+            }
 
-            return res.status(400).send({code: 1, message: error.errors[0].message, data: null})
+            return res.json({code: 1, message: error.errors[0].message, data: null})
         }
-        else return res.status(400).send({code: 1, message: error, data: null})
+        else return res.json({code: 1, message: error, data: null})
     }
 }
 
@@ -177,12 +179,14 @@ const updatePost = async (req, res) => {
     } catch (error) {
         console.log(error)
         if(error.errors){
-            const tempPath = await req.file.path
-            fs.unlink(tempPath, err => console.log(err))
+            if(req.file){
+                const tempPath = await req.file.path
+                fs.unlink(tempPath, err => console.log(err))
+            }
 
-            return res.status(400).send({code: 1, message: error.errors[0].message, data: null})
+            return res.json({code: 1, message: error.errors[0].message, data: null})
         }
-        else return res.status(400).send({code: 1, message: error, data: null})
+        else return res.json({code: 1, message: error, data: null})
     }
 }
 
