@@ -221,8 +221,8 @@ const deletePost = async (req, res) => {
         }
 
     } catch (error) {
-        if(error.message) return res.status(400).send({code: 1, message: error.message, data: null})
-        else return res.status(400).send({code: 1, message: error, data: null})
+        if(error.message) return res.send({code: 1, message: error.message, data: null})
+        else return res.send({code: 1, message: error, data: null})
     }
 }
 module.exports = { getAllPost, getPostById, createPost, updatePost, deletePost }

@@ -45,8 +45,8 @@ const createData = async (req, res) => {
         }
 
     } catch (error) {
-        if(error.errors) return res.status(400).send({code: 1, message: error.errors[0].message, data: null})
-        else return res.status(400).send({code: 1, message: error, data: null})
+        if(error.errors) return res.send({code: 1, message: error.errors[0].message, data: null})
+        else return res.send({code: 1, message: error, data: null})
     }
 }
 
@@ -80,8 +80,8 @@ const updateData = async (req, res) => {
         }
     } catch (error) {
         // console.log(error)
-        if(error.errors) return res.status(400).json({code: 1, message: error.errors[0].message, data: null})
-        else return res.status(400).json({code: 1, message: error, data: null})
+        if(error.errors) return res.json({code: 1, message: error.errors[0].message, data: null})
+        else return res.json({code: 1, message: error, data: null})
     }
 }
 
@@ -107,7 +107,7 @@ const deleteData = async (req, res) => {
         }
 
     } catch (error) {
-        return res.status(400).json({code: 1, message: error.message, data: null})
+        return res.json({code: 1, message: error.message, data: null})
     }
 }
 
@@ -119,7 +119,7 @@ const truncateData = async (req, res) => {
         
         return res.json({code: 0, message: 'data successfully truncate', data: null})
     } catch (error) {
-        return res.status(400).json({code: 1, message: error.message, data: null})
+        return res.json({code: 1, message: error.message, data: null})
     }
 }
 

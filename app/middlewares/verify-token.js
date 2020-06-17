@@ -21,7 +21,7 @@ const verifyToken = async (req, res, next) => {
         
     } catch (err) {
         // error message jika token kadaluarsa atau invalid
-        res.status(200).json({code: 1, message: `${err.message}`, data: null })
+        res.json({code: 1, message: `${err.message}`, data: null })
     }
 }
 
