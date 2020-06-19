@@ -4,12 +4,13 @@ const getAllCategories = async (req, res) => {
     try {
         const data = await models.Category.findAll()
 
-        if(data.lenght > 0){
+        if(data.length !== 0){
             return res.json({code: 0, message: 'success', data})
         }else{
-            return res.json({code: 1, message: 'failed', data})
+            return res.json({code: 1, message: 'failed', data: "category not found"})
         }
     } catch (error) {
+        console.log(error)
         if(error.message) return res.json({code: 1, message: error.message, data: null})
         else return res.json({code: 1, message: error, data: null})
     }
