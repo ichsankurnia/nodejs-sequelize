@@ -25,7 +25,7 @@ module.exports = (sequelize, DataTypes) => {
 				type: DataTypes.STRING,
 				allowNull: true
 			},
-			author: {
+			user_id: {
 				type: DataTypes.BIGINT,
 				allowNull: true,
 			},
@@ -69,6 +69,12 @@ module.exports = (sequelize, DataTypes) => {
 
 	post.associate = function(models) {
 		// associations can be defined here
+		post.belongsTo(models.User, {
+			foreignKey: 'user_id',
+			onDelete: 'RESTRICT',
+			onUpdate: 'CASCADE'
+		})
+		
 		post.belongsTo(models.Category, {
 			foreignKey: 'category_id',
 			onDelete: 'RESTRICT',

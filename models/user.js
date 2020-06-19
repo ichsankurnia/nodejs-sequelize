@@ -56,11 +56,12 @@ module.exports = (sequelize, DataTypes) => {
 	// User.removeAttribute('createdAt');
 	// User.removeAttribute('updatedAt');
 
-	// User.associate = function(models) {
-	//       User.hasMany(models.UserSetting, {
-	// 		foreignKey: 'user_id',
-	// 		onDelete: 'CASCADE',
-	//       });
+	User.associate = function(models) {
+        User.hasMany(models.Post, {
+			foreignKey: 'user_id',
+            onDelete: 'RESTRICT',
+            onUpdate: 'CASCADE'
+        });
 
 	// 	User.belongsTo(models.UserGroup, {
 	// 		foreignKey: 'user_group_id',
@@ -71,7 +72,7 @@ module.exports = (sequelize, DataTypes) => {
 	// 		foreignKey: 'employee_id',
 	// 		onDelete: 'CASCADE',
 	// 	});
-	// };
+	};
 
 	return User;
 };

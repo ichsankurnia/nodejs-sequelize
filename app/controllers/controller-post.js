@@ -7,7 +7,9 @@ const models = require('../../models')
 // Get all post
 const getAllPost = async (req, res) => {
     try {
-        const data = await models.Post.findAll()
+        const data = await models.Post.findAll({
+            include: [ models.User, models.Category ]
+        })
 
         if(data.length > 0){
             return res.json({code: 0, message: 'success', data})
@@ -24,7 +26,7 @@ const getAllPost = async (req, res) => {
 const getPostById = async (req, res) => {
     try {
         const { id } = req.params
-        const data = await models.Post.findOne({where : {post_id : id}})
+        const data = await models.Post.findOne({where : {post_id : id}, include: [ models.User, models.Category ] })
 
         if(data){
             return res.json({code: 0, message: 'success', data})
@@ -65,7 +67,7 @@ const createPost = async (req, res) => {
                 post_body : body,
                 // thumbnail_url : urlFIle,
                 thumbnail_url : targetPath,
-                author: author,
+                user_id: author,
                 category_id: category_id
             })
 
@@ -85,7 +87,7 @@ const createPost = async (req, res) => {
             const data = await models.Post.create({
                 post_title: title,
                 post_body : body,
-                author: author,
+                user_id: author,
                 category_id: category_id
             })
 
@@ -136,7 +138,7 @@ const updatePost = async (req, res) => {
                     post_title: title,
                     post_body : body,
                     thumbnail_url: targetPath,
-                    author: author,
+                    user_id: author,
                     category_id: category_id,
                     update_at: new Date()
                 }, {where : {post_id: id} })
@@ -159,7 +161,7 @@ const updatePost = async (req, res) => {
                 const update = await models.Post.update({
                     post_title: title,
                     post_body : body,
-                    author: author,
+                    user_id: author,
                     category_id: category_id,
                     update_at: new Date()
                 }, {where : {post_id: id} })

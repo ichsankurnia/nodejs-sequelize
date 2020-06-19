@@ -7,6 +7,7 @@ const auth = require('../app/middlewares/authenticate');
 // import controller
 const controllerUser = require('../app/controllers/controller-user')
 const controllerPost = require('../app/controllers/controller-post')
+const controllerCategory = require('../app/controllers/controller-category')
 
 const router = Router();
 
@@ -44,6 +45,14 @@ router.get('/post',             isAuthenticated, controllerPost.getAllPost)
 router.get('/post/:id',         isAuthenticated, controllerPost.getPostById)
 router.post('/post',            isAuthenticated, upload.single('file'), controllerPost.createPost)
 router.put('/post/:id',         isAuthenticated, upload.single('file'), controllerPost.updatePost)
-router.delete('/post/:id',         isAuthenticated, controllerPost.deletePost)
+router.delete('/post/:id',      isAuthenticated, controllerPost.deletePost)
+
+// Category
+router.get('/category',             isAuthenticated, controllerCategory.getAllCategories)
+router.get('/category/:id',         isAuthenticated, controllerCategory.getCategoryById)
+router.post('/category',            isAuthenticated, controllerCategory.createCategory)
+router.put('/category/:id',         isAuthenticated, controllerCategory.updateCategory)
+router.delete('/category/:id',      isAuthenticated, controllerCategory.deleteCategory)
+router.delete('/truncate-category', isAuthenticated, controllerCategory.truncateCategories)
 
 module.exports = router;
