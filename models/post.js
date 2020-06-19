@@ -69,6 +69,11 @@ module.exports = (sequelize, DataTypes) => {
 
 	post.associate = function(models) {
 		// associations can be defined here
+		post.belongsTo(models.Category, {
+			foreignKey: 'category_id',
+			onDelete: 'RESTRICT',
+			onUpdate: 'CASCADE'
+		})
 	};
 
 	

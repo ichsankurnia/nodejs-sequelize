@@ -37,7 +37,12 @@ module.exports = (sequelize, DataTypes) => {
 	category.removeAttribute('id');
 
 	category.associate = function(models) {
-		// associations can be defined here
+		
+		category.hasMany(models.Post, {
+			foreignKey: 'category_id',
+			onDelete: 'RESTRICT',
+			onUpdate: 'CASCADE'
+		});
 	};
 
 	
