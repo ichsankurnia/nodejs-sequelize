@@ -9,8 +9,12 @@ const getAllPost = async (req, res) => {
     try {
         const data = await models.Post.findAll({
             include: [ 
-                {model: models.User, include: models.UserProfile },
-                {model: models.Category} 
+                {
+                    model: models.User, include: models.UserProfile
+                },
+                {
+                    model: models.Category
+                } 
             ]
         })
 
