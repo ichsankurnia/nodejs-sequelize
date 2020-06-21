@@ -8,7 +8,10 @@ const models = require('../../models')
 const getAllPost = async (req, res) => {
     try {
         const data = await models.Post.findAll({
-            include: [ models.User, models.Category ]
+            include: [ 
+                {model: models.User, include: models.UserProfile },
+                {model: models.Category} 
+            ]
         })
 
         if(data.length > 0){
@@ -26,7 +29,13 @@ const getAllPost = async (req, res) => {
 const getPostById = async (req, res) => {
     try {
         const { id } = req.params
-        const data = await models.Post.findOne({where : {post_id : id}, include: [ models.User, models.Category ] })
+        const data = await models.Post.findOne({
+            where : { post_id : id },
+            include: [ 
+                {model: models.User, include: models.UserProfile },
+                {model: models.Category} 
+            ]
+        })
 
         if(data){
             return res.json({code: 0, message: 'success', data})
