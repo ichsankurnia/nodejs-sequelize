@@ -4,7 +4,9 @@ const models = require('../../models')
 // Get all data
 const getAllData = async (req, res) => {
     try {
-        const data = await models.User.findAll();
+        const data = await models.User.findAll({
+            include: [ models.UserProfile ]
+        });
         if(data.length){
             return res.json({code: 0, message: 'success', data})
         }else{
@@ -20,7 +22,10 @@ const getAllData = async (req, res) => {
 const getDataById = async (req, res) => {
     try {
         const { id } = req.params;
-        const data = await models.User.findOne({ where: {user_id: id} })
+        const data = await models.User.findOne({ 
+            where: {user_id: id},
+            include: [ models.UserProfile ] 
+        })
 
         if (data){
             return res.json({code: 0, message: 'success', data})

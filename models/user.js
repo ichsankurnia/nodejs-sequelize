@@ -63,6 +63,13 @@ module.exports = (sequelize, DataTypes) => {
             onUpdate: 'CASCADE'
         });
 
+        User.hasOne(models.UserProfile, {
+            // as: 'user_profile',
+			foreignKey: 'profile_id',
+            onDelete: 'CASCADE',
+            onUpdate: 'CASCADE'
+        })
+
 	// 	User.belongsTo(models.UserGroup, {
 	// 		foreignKey: 'user_group_id',
 	// 		onDelete: 'CASCADE',
