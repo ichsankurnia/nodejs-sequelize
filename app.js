@@ -21,8 +21,8 @@ app.get('/', (req, res) => {
     res.send({ author: 'Ichsan Kurniawan', contact: 'kurniaichsan45@gmail.com', description: 'Rest API with nodejs express sequelize postgre' })
 })
 // route for static file (html css js img)
-app.use('/static', express.static(path.join(__dirname, 'public')))
-// app.use('/public', express.static(path.join(__dirname, 'public')))
+app.use('/public', express.static(path.join(__dirname, 'public')))
+// app.use('/static', express.static(path.join(__dirname, 'public')))
 
 // Route API
 app.use('/api/', route)

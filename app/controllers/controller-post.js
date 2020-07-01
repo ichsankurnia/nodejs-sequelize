@@ -52,6 +52,7 @@ const getPostById = async (req, res) => {
 }
 
 
+// function untuk membuat title image dalam format nama-file.png
 const titleImg = (title) => {
     var resTitle = ''
     title.substring(0, 19).split(' ').forEach(element => {
@@ -69,9 +70,10 @@ const createPost = async (req, res) => {
 
         const {title, body, author, category_id} = req.body
 
+        // jika dalam request terdapat file
         if(req.file){
-            const tempPath = await req.file.path
-            const targetPath = await path.join(__dirname, './../../public/assets/img/upload/' + titleImg(title) + ".png")
+            const tempPath = await req.file.path                                // ambil file path setelah di upload di folder tmp
+            const targetPath = await path.join(__dirname, './../../public/assets/img/upload/' + titleImg(title) + ".png")        // ganti setiap file yg di upload menjadi .png
             const urlFIle = await "http://" + req.headers.host + '/static/assets/img/upload/' + titleImg(title) + '.png'
             console.log(urlFIle)
 
@@ -85,6 +87,7 @@ const createPost = async (req, res) => {
             })
 
             if(data){
+                // pindahkan file dari folder tmp ke target path (public/assets)
                 await fs.rename(tempPath, targetPath, err => {
                     if (err){
                         console.log(err);
@@ -139,13 +142,6 @@ const updatePost = async (req, res) => {
             if(req.file){
                 const tempPath = await req.file.path
                 const targetPath = await path.join(__dirname, './../../public/assets/img/upload/' + titleImg(title) + ".png")
-
-                // delete image yg lama
-                await fs.unlink(data.dataValues.thumbnail_url, err => {
-                    if(err){
-                        console.log(err)
-                    }
-                })
   
                 const update = await models.Post.update({
                     post_title: title,
@@ -156,7 +152,17 @@ const updatePost = async (req, res) => {
                     update_at: new Date()
                 }, {where : {post_id: id} })
     
+                // jika data success di update
                 if(update){
+                    
+                    // delete image yg lama, dengan mengambil path yg lama pada column thumbnail_url
+                    await fs.unlink(data.dataValues.thumbnail_url, err => {
+                        if(err){
+                            console.log(err)
+                        }
+                    })
+
+                    // update dg image yg baru
                     await fs.rename(tempPath, targetPath, err => {
                         if (err){
                             console.log(err);
@@ -240,4 +246,6 @@ const deletePost = async (req, res) => {
         else return res.send({code: 1, message: error, data: null})
     }
 }
+
+
 module.exports = { getAllPost, getPostById, createPost, updatePost, deletePost }
