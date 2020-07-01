@@ -1,5 +1,5 @@
 const models = require('../../models')
-
+const mail = require('./../helper/sendEmail')
 
 // Get all data
 const getAllData = async (req, res) => {
@@ -48,7 +48,10 @@ const createData = async (req, res) => {
         const data = await models.User.create(req.body)
         
         if(data){
-            return res.status(201).json({code: 0, message: 'data successfully added', data})
+            // await mail.sendMailRegister(req.body)
+            mail.sendMailRegister2(req.body)
+
+            return res.status(201).json({code: 0, message: 'data successfully registered, please check your email now!', data})
         }else{
             return res.json({code: 1, message: "data failed added", data: null})
         }
