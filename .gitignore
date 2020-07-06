@@ -106,3 +106,4 @@ dist
 #
 tmp/
 public/assets/img/
+public/views/images/
