@@ -39,6 +39,11 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.TEXT,
             allowNull: true 
         },
+        is_login: {
+            type: DataTypes.BOOLEAN,
+            allowNull: true,
+            defaultValue: false
+        },
         createdAt:{
             type: DataTypes.DATE,allowNull: true, defaultValue: DataTypes.DATE.NOW
         },
