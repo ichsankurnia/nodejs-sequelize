@@ -46,11 +46,23 @@ const getDataById = async (req, res) => {
 const createData = async (req, res) => {
     try {
         const data = await models.User.create(req.body)
+        var fullUrl = req.protocol + '://' + req.get('host') + req.baseUrl;
+        // var fullUrl = req.protocol + '://' + req.get('host') + req.originalUrl;
+        console.log("Url => ", fullUrl)
         
         if(data){
-            // await mail.sendMailRegister(req.body)
-            mail.sendMailRegister2(req.body)
+            console.log("Data => ", data.dataValues)
 
+            const payload = {
+                username: data.dataValues.username_var,
+                password: data.dataValues.password_var,
+                email: data.dataValues.email_var,
+                api: `${fullUrl}/activate-account/${data.dataValues.user_id}`
+            }
+            
+            await mail.sendMailRegister(payload)
+            // mail.sendMailRegister2(req.body)
+            
             return res.status(201).json({code: 0, message: 'data successfully registered, please check your email now!', data})
         }else{
             return res.json({code: 1, message: "data failed added", data: null})
@@ -136,6 +148,33 @@ const truncateData = async (req, res) => {
 }
 
 
+const activateAccount = async (req, res) => {
+    try {
+        const {id} = req.params
+
+        const data = await models.User.findOne({ where :{user_id : id} })
+
+        if(data){
+            const update = await models.User.update({
+                is_login: true
+            }, { where:{user_id: id} })
+
+            if(update){
+
+                return res.send("<h1>Your account successfully activated, please login<h1>")
+            }else{
+                return res.json({code: 1, message: 'data failed updated', data: null})
+            }
+        }else{
+            return res.json({code: 1, message: 'data with the specified ID does not exists', data})
+        }
+    } catch (error) {
+        if(error.message) return error.message
+        else return error
+    }
+}
+
+
 //note export module pake {}, import module y, panggil fungsinya y.getAllData, jika tidak ada {}, panggil fungsi sama dg yg di import
 module.exports = {
     getAllData, 
@@ -144,4 +183,5 @@ module.exports = {
     updateData, 
     deleteData,
     truncateData,
+    activateAccount
 }

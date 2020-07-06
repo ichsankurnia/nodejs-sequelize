@@ -25,6 +25,7 @@ router.post('/user',                             controllerUser.createData)
 router.put('/user/:id',         isAuthenticated, controllerUser.updateData)
 router.delete('/user/:id',      isAuthenticated, controllerUser.deleteData)
 router.delete('/truncate-user', isAuthenticated, controllerUser.truncateData)
+router.get('/activate-account/:id', controllerUser.activateAccount)
 
 
 var storage = multer.diskStorage({
