@@ -156,12 +156,13 @@ const activateAccount = async (req, res) => {
 
         if(data){
             const update = await models.User.update({
-                is_login: true
+                is_login: true,
+                update_at : new Date()
             }, { where:{user_id: id} })
 
             if(update){
 
-                return res.send("<h1>Your account successfully activated, please login<h1>")
+                return res.send("<h1>Your account successfully activated, please login!<h1>")
             }else{
                 return res.json({code: 1, message: 'data failed updated', data: null})
             }

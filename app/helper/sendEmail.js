@@ -16,8 +16,6 @@ const config = {
 
 const sendMailRegister = async (params) => {
 
-
-
     const template = await fs.readFileSync('./public/views/test1.html', 'utf8');
     var transporter = await nodemailer.createTransport(config);
 
