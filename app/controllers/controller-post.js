@@ -127,8 +127,10 @@ const createPost = async (req, res) => {
                     }
                 })
 
+
+                console.log("data => ", data)
                 const getData = await models.Post.findOne({
-                    where : {user_id: data.dataValues.user_id},
+                    where : {post_id: data.dataValues.post_id},
                     attributes: ['post_id', 'post_title', 'post_body', 'thumbnail_url', 'createdAt', 'updatedAt'],
                     include : [
                         { 
@@ -148,6 +150,7 @@ const createPost = async (req, res) => {
                     ] 
                 })
 
+                console.log("getData => ", getData)
                 return res.status(201).json({code: 0, message: 'new post successfully added', data: getData})
             }else{
                 return res.json({code: 1, message: "new post failed added", data: null})
@@ -162,7 +165,7 @@ const createPost = async (req, res) => {
 
             if(data){
                 const getData = await models.Post.findOne({
-                    where : {user_id: data.dataValues.user_id},
+                    where : {post_id: data.dataValues.post_id},
                     attributes: ['post_id', 'post_title', 'post_body', 'thumbnail_url', 'createdAt', 'updatedAt'],
                     include : [
                         { 
