@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path')
+require('dotenv').config()
 
 const models = require('../../models')
 
@@ -8,14 +9,23 @@ const models = require('../../models')
 const getAllPost = async (req, res) => {
     try {
         const data = await models.Post.findAll({
-            include: [ 
-                {
-                    model: models.User, include: models.UserProfile
+            attributes: ['post_id', 'post_title', 'post_body', 'thumbnail_url', 'createdAt', 'updatedAt'],
+            include : [
+                { 
+                    model: models.User,
+                    attributes : ['user_id', 'username_var', 'email_var'],
+                    include: [
+                        {
+                            model : models.UserProfile, 
+                            attributes : ['img_profile']
+                        }
+                    ]
                 },
                 {
-                    model: models.Category
-                } 
-            ]
+                    model : models.Category,
+                    attributes: ['category_id', 'category_name']
+                }
+            ] 
         })
 
         if(data.length > 0){
@@ -35,10 +45,23 @@ const getPostById = async (req, res) => {
         const { id } = req.params
         const data = await models.Post.findOne({
             where : { post_id : id },
-            include: [ 
-                {model: models.User, include: models.UserProfile },
-                {model: models.Category} 
-            ]
+            attributes: ['post_id', 'post_title', 'post_body', 'thumbnail_url', 'createdAt', 'updatedAt'],
+            include : [
+                { 
+                    model: models.User,
+                    attributes : ['user_id', 'username_var', 'email_var'],
+                    include: [
+                        {
+                            model : models.UserProfile, 
+                            attributes : ['img_profile']
+                        }
+                    ]
+                },
+                {
+                    model : models.Category,
+                    attributes: ['category_id', 'category_name']
+                }
+            ] 
         })
 
         if(data){
@@ -72,16 +95,26 @@ const createPost = async (req, res) => {
 
         // jika dalam request terdapat file
         if(req.file){
+            console.log(req)
+            console.log(req.hostname)                   // 192.168.1.8
+            console.log(req.get('host'))                // 192.168.1.8:3006
+            console.log(req.headers.host)               // 192.168.1.8:3006
+            console.log(req.get('origin'))              // undifined
+            console.log(req.headers.origin)             // undifined
+            console.log(req.headers["x-forwarded-for"]) // undifined
+            console.log(req.connection.remoteAddress)   // ::ffff:192.168.1.8
+            console.log(req.socket.remoteAddress)       // ::ffff:192.168.1.8
+
             const tempPath = await req.file.path                                // ambil file path setelah di upload di folder tmp
             const targetPath = await path.join(__dirname, './../../public/assets/img/upload/' + titleImg(title) + ".png")        // ganti setiap file yg di upload menjadi .png
-            const urlFIle = await "http://" + req.headers.host + '/static/assets/img/upload/' + titleImg(title) + '.png'
-            console.log(urlFIle)
+            const urlFile = await req.protocol + '://' + req.headers.host + '/' + process.env.IMG_PATH_UPLOAD + titleImg(title) + '.png'
+            console.log(urlFile)
 
             const data = await models.Post.create({
                 post_title: title,
                 post_body : body,
-                // thumbnail_url : urlFIle,
-                thumbnail_url : targetPath,
+                thumbnail_url : urlFile,
+                // thumbnail_url : targetPath,
                 user_id: author,
                 category_id: category_id
             })
@@ -91,11 +124,31 @@ const createPost = async (req, res) => {
                 await fs.rename(tempPath, targetPath, err => {
                     if (err){
                         console.log(err);
-                        return res.send(500)
                     }
                 })
 
-                return res.status(201).json({code: 0, message: 'new post successfully added', data})
+                const getData = await models.Post.findOne({
+                    where : {user_id: data.dataValues.user_id},
+                    attributes: ['post_id', 'post_title', 'post_body', 'thumbnail_url', 'createdAt', 'updatedAt'],
+                    include : [
+                        { 
+                            model: models.User,
+                            attributes : ['user_id', 'username_var', 'email_var'],
+                            include: [
+                                {
+                                    model : models.UserProfile, 
+                                    attributes : ['img_profile']
+                                }
+                            ]
+                        },
+                        {
+                            model : models.Category,
+                            attributes: ['category_id', 'category_name']
+                        }
+                    ] 
+                })
+
+                return res.status(201).json({code: 0, message: 'new post successfully added', data: getData})
             }else{
                 return res.json({code: 1, message: "new post failed added", data: null})
             }
@@ -108,7 +161,28 @@ const createPost = async (req, res) => {
             })
 
             if(data){
-                return res.status(201).json({code: 0, message: 'new post successfully added, no file uploaded', data})
+                const getData = await models.Post.findOne({
+                    where : {user_id: data.dataValues.user_id},
+                    attributes: ['post_id', 'post_title', 'post_body', 'thumbnail_url', 'createdAt', 'updatedAt'],
+                    include : [
+                        { 
+                            model: models.User,
+                            attributes : ['user_id', 'username_var', 'email_var'],
+                            include: [
+                                {
+                                    model : models.UserProfile, 
+                                    attributes : ['img_profile']
+                                }
+                            ]
+                        },
+                        {
+                            model : models.Category,
+                            attributes: ['category_id', 'category_name']
+                        }
+                    ] 
+                })
+
+                return res.status(201).json({code: 0, message: 'new post successfully added, no file uploaded', data: getData})
             }else{
                 return res.json({code: 1, message: "new post failed added", data: null})
             }
@@ -116,12 +190,13 @@ const createPost = async (req, res) => {
 
     } catch (error) {
         console.log(error)
-        if(error.errors){
-            if(req.file){
-                const tempPath = await req.file.path
-                fs.unlink(tempPath, err => console.log(err))
-            }
 
+        if(req.file){
+            const tempPath = await req.file.path
+            fs.unlink(tempPath, err => console.log(err))
+        }
+
+        if(error.errors){
             return res.json({code: 1, message: error.errors[0].message, data: null})
         }
         else return res.json({code: 1, message: error, data: null})
@@ -140,13 +215,15 @@ const updatePost = async (req, res) => {
 
         if(data){
             if(req.file){
-                const tempPath = await req.file.path
-                const targetPath = await path.join(__dirname, './../../public/assets/img/upload/' + titleImg(title) + ".png")
+                const tempPath = await req.file.path                                // ambil file path setelah di upload di folder tmp
+                const targetPath = await path.join(__dirname, './../../public/assets/img/upload/' + titleImg(title) + ".png")        // ganti setiap file yg di upload menjadi .png
+                const urlFile = await req.protocol + '://' + req.headers.host + '/' + process.env.IMG_PATH_UPLOAD + titleImg(title) + '.png'
   
                 const update = await models.Post.update({
                     post_title: title,
                     post_body : body,
-                    thumbnail_url: targetPath,
+                    // thumbnail_url: targetPath,
+                    thumbnail_url: urlFile,
                     user_id: author,
                     category_id: category_id,
                     update_at: new Date()
@@ -154,13 +231,37 @@ const updatePost = async (req, res) => {
     
                 // jika data success di update
                 if(update){
+                    const updateData = await models.Post.findOne({
+                        where: {post_id: id}, 
+                        attributes: ['post_id', 'post_title', 'post_body', 'thumbnail_url', 'createdAt', 'updatedAt'],
+                        include : [
+                            { 
+                                model: models.User,
+                                attributes : ['user_id', 'username_var', 'email_var'],
+                                include: [
+                                    {
+                                        model : models.UserProfile, 
+                                        attributes : ['img_profile']
+                                    }
+                                ]
+                            },
+                            {
+                                model : models.Category,
+                                attributes: ['category_id', 'category_name']
+                            }
+                        ] 
+                    })
                     
                     // delete image yg lama, dengan mengambil path yg lama pada column thumbnail_url
-                    await fs.unlink(data.dataValues.thumbnail_url, err => {
-                        if(err){
-                            console.log(err)
-                        }
-                    })
+                    if(data.dataValues.thumbnail_url !== null){
+                        const imgPath = process.env.IMG_PATH_UPLOAD + titleImg(data.dataValues.post_title) + '.png'
+
+                        await fs.unlink(imgPath, err => {
+                            if(err){
+                                console.log(err)
+                            }
+                        })
+                    }
 
                     // update dg image yg baru
                     await fs.rename(tempPath, targetPath, err => {
@@ -169,8 +270,6 @@ const updatePost = async (req, res) => {
                             return res.send(500)
                         }
                     })
-
-                    const updateData = await models.Post.findOne({where: {post_id: id} })
 
                     return res.status(201).json({code: 0, message: 'post successfully updated', data: updateData})
                 }else{
@@ -186,7 +285,26 @@ const updatePost = async (req, res) => {
                 }, {where : {post_id: id} })
     
                 if(update){
-                    const updateData = await models.Post.findOne({where: {post_id: id} })
+                    const updateData = await models.Post.findOne({
+                        where: {post_id: id},
+                        attributes: ['post_id', 'post_title', 'post_body', 'thumbnail_url', 'createdAt', 'updatedAt'],
+                        include : [
+                            { 
+                                model: models.User,
+                                attributes : ['user_id', 'username_var', 'email_var'],
+                                include: [
+                                    {
+                                        model : models.UserProfile, 
+                                        attributes : ['img_profile']
+                                    }
+                                ]
+                            },
+                            {
+                                model : models.Category,
+                                attributes: ['category_id', 'category_name']
+                            }
+                        ] 
+                    })
 
                     return res.status(201).json({code: 0, message: 'post successfully updated, no files updated', data: updateData})
                 }else{
@@ -199,12 +317,13 @@ const updatePost = async (req, res) => {
 
     } catch (error) {
         console.log(error)
-        if(error.errors){
-            if(req.file){
-                const tempPath = await req.file.path
-                fs.unlink(tempPath, err => console.log(err))
-            }
 
+        if(req.file){
+            const tempPath = await req.file.path
+            fs.unlink(tempPath, err => console.log(err))
+        }
+
+        if(error.errors){
             return res.json({code: 1, message: error.errors[0].message, data: null})
         }
         else return res.json({code: 1, message: error, data: null})
@@ -224,14 +343,15 @@ const deletePost = async (req, res) => {
             const deleteData = await models.Post.destroy({ where: { post_id: id} })
     
             if(deleteData){
-                const imgPath = data.dataValues.thumbnail_url
+                if(data.dataValues.thumbnail_url !== null){
+                    const imgPath = process.env.IMG_PATH_UPLOAD + titleImg(data.dataValues.post_title) + '.png'
 
-                fs.unlink(imgPath, err => {
-                    if(err){
-                        console.log(err)
-                        res.sendStatus(500)
-                    }
-                })
+                    fs.unlink(imgPath, err => {
+                        if(err){
+                            console.log(err)
+                        }
+                    })
+                }
 
                 return res.json({code: 0, message: 'data successfully deleted', data: deleteData})
             }else{
