@@ -1,5 +1,5 @@
 const { Router } = require('express');
-const multer = require('multer');
+const upload = require('./../app/helper/uploadFile')
 
 // import middleware
 const isAuthenticated = require('../app/middlewares/verify-token')
@@ -27,25 +27,13 @@ router.delete('/user/:id',      isAuthenticated, controllerUser.deleteData)
 router.delete('/truncate-user', isAuthenticated, controllerUser.truncateData)
 router.get('/activate-account/:id', controllerUser.activateAccount)
 
-
-var storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-      cb(null, './tmp/')
-    },
-    filename: (req, file, cb) => {
-      cb(null, file.fieldname + '-' + Date.now())
-    }
-});
-
-// var upload = multer({ dest: './public/assets/img/upload/' })
-// var upload = multer({storage: storage}).single('file');     // file is req name
-var upload = multer({storage: storage})
-
 // post
 router.get('/post',             isAuthenticated, controllerPost.getAllPost)
 router.get('/post/:id',         isAuthenticated, controllerPost.getPostById)
-router.post('/post',            isAuthenticated, upload.single('file'), controllerPost.createPost)
-router.put('/post/:id',         isAuthenticated, upload.single('file'), controllerPost.updatePost)
+router.post('/post',            isAuthenticated, upload.uploadImg('file'), controllerPost.createPost)
+router.put('/post/:id',         isAuthenticated, upload.uploadImg('file'), controllerPost.updatePost)
+// router.post('/post',            isAuthenticated, uploadFile.imgPostUpload('file'), controllerPost.createPost)
+// router.put('/post/:id',         isAuthenticated, uploadFile.imgPostUpload('file'), controllerPost.updatePost)
 router.delete('/post/:id',      isAuthenticated, controllerPost.deletePost)
 
 // Category
