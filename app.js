@@ -1,5 +1,5 @@
 const express = require('express')
-const bodyParser    = require('body-parser'); // turns response into usable format
+const bodyParser = require('body-parser'); // turns response into usable format
 const cors = require('cors')
 const path = require('path')
 const host = require("ip").address();
