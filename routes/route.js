@@ -35,6 +35,7 @@ router.put('/post/:id',         isAuthenticated, upload.uploadImg('file'), contr
 // router.post('/post',            isAuthenticated, uploadFile.imgPostUpload('file'), controllerPost.createPost)
 // router.put('/post/:id',         isAuthenticated, uploadFile.imgPostUpload('file'), controllerPost.updatePost)
 router.delete('/post/:id',      isAuthenticated, controllerPost.deletePost)
+router.delete('/truncate-post', isAuthenticated, controllerPost.truncatePosts)
 
 // Category
 router.get('/category',             isAuthenticated, controllerCategory.getAllCategories)
