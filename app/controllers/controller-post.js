@@ -380,4 +380,16 @@ const deletePost = async (req, res) => {
 }
 
 
-module.exports = { getAllPost, getPostById, createPost, updatePost, deletePost }
+const truncatePosts = async (req, res) => {
+    try {
+        await models.Post.destroy({truncate: true, restartIdentity: true})
+        
+        return res.json({code: 0, message: 'all posts successfully truncates', data: null})
+    } catch (error) {
+        if(error.message) return res.json({code: 1, message: error.message, data: null})
+        else return res.json({code: 1, message: error, data: null})
+    }
+}
+
+
+module.exports = { getAllPost, getPostById, createPost, updatePost, deletePost, truncatePosts }
