@@ -103,7 +103,7 @@ const deleteCategory = async (req, res) => {
 
 const truncateCategories = async (req, res) => {
     try {
-        await models.User.destroy({truncate: true, restartIdentity: true})
+        await models.Category.destroy({truncate: true, restartIdentity: true})
         
         return res.json({code: 0, message: 'all categories successfully truncates', data: null})
     } catch (error) {
