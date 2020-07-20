@@ -1,5 +1,6 @@
 const models = require('../../models')
 const mail = require('./../helper/sendEmail')
+const domain = require('./../helper/getDomain')
 
 // Get all data
 const getAllData = async (req, res) => {
@@ -46,7 +47,8 @@ const getDataById = async (req, res) => {
 const createData = async (req, res) => {
     try {
         const data = await models.User.create(req.body)
-        var fullUrl = req.protocol + '://' + req.get('host') + req.baseUrl;
+        var fullUrl = await domain.getFullDomainURL(req);
+        // var fullUrl = req.protocol + '://' + req.get('host') + req.baseUrl;
         // var fullUrl = req.protocol + '://' + req.get('host') + req.originalUrl;
         console.log("Url => ", fullUrl)
         
