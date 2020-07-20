@@ -3,7 +3,7 @@ const path = require('path')
 require('dotenv').config()
 
 const models = require('../../models')
-
+const domain = require('./../helper/getDomain')
 
 // Get all post
 const getAllPost = async (req, res) => {
@@ -95,19 +95,28 @@ const createPost = async (req, res) => {
 
         // jika dalam request terdapat file
         if(req.file){
-            console.log(req)
             console.log(req.hostname)                   // 192.168.1.8
-            console.log(req.get('host'))                // 192.168.1.8:3006
-            console.log(req.headers.host)               // 192.168.1.8:3006
-            console.log(req.get('origin'))              // undifined
-            console.log(req.headers.origin)             // undifined
-            console.log(req.headers["x-forwarded-for"]) // undifined
+            if(req.headers["x-forwarded-host"]){             // server
+                console.log(req.get('origin'))              // undifined
+                console.log(req.headers.origin)             // undifined
+                console.log(req.headers['x-forwarded-proto'])   // https
+                console.log(req.headers["x-forwarded-host"].split(',')[0])  // darkyasha.goes2nobel.com, darkyasha.goes2nobel.com
+                console.log(req.headers["x-forwarded-for"]) // 36.69.161.207, 36.69.161.207
+            }else{
+                console.log(req.get('host'))                // 192.168.1.8:3006
+                console.log(req.headers.host)               // 192.168.1.8:3006
+            }
             console.log(req.connection.remoteAddress)   // ::ffff:192.168.1.8
             console.log(req.socket.remoteAddress)       // ::ffff:192.168.1.8
 
-            const tempPath = await req.file.path                                // ambil file path setelah di upload di folder tmp
-            const targetPath = await path.join(__dirname, './../../public/assets/img/upload/' + titleImg(title) + ".png")        // ganti setiap file yg di upload menjadi .png
-            const urlFile = await req.protocol + '://' + req.headers.host + '/' + process.env.IMG_PATH_UPLOAD + titleImg(title) + '.png'
+            console.log('__dirname :', __dirname)
+            console.log('req.path :', req.path)
+
+            const domainName = await domain.getFullDomainURL(req)
+
+            const tempPath = await req.file.path                                                                       // ambil file path setelah di upload di folder tmp
+            const targetPath = await path.resolve(process.env.IMG_PATH_UPLOAD) + '/' + titleImg(title) + ".png"        // ganti setiap file yg di upload menjadi .png
+            const urlFile = await domainName + process.env.IMG_PATH_UPLOAD + titleImg(title) + '.png'                      // buat url untuk image tsb
             console.log(urlFile)
 
             const data = await models.Post.create({
@@ -127,8 +136,6 @@ const createPost = async (req, res) => {
                     }
                 })
 
-
-                console.log("data => ", data)
                 const getData = await models.Post.findOne({
                     where : {post_id: data.dataValues.post_id},
                     attributes: ['post_id', 'post_title', 'post_body', 'thumbnail_url', 'createdAt', 'updatedAt'],
@@ -150,7 +157,6 @@ const createPost = async (req, res) => {
                     ] 
                 })
 
-                console.log("getData => ", getData)
                 return res.status(201).json({code: 0, message: 'new post successfully added', data: getData})
             }else{
                 return res.json({code: 1, message: "new post failed added", data: null})
@@ -218,9 +224,11 @@ const updatePost = async (req, res) => {
 
         if(data){
             if(req.file){
-                const tempPath = await req.file.path                                // ambil file path setelah di upload di folder tmp
-                const targetPath = await path.join(__dirname, './../../public/assets/img/upload/' + titleImg(title) + ".png")        // ganti setiap file yg di upload menjadi .png
-                const urlFile = await req.protocol + '://' + req.headers.host + '/' + process.env.IMG_PATH_UPLOAD + titleImg(title) + '.png'
+                const domainName = await domain.getFullDomainURL(req)
+
+                const tempPath = await req.file.path                                                                        // ambil file path setelah di upload di folder tmp
+                const targetPath = await path.resolve(process.env.IMG_PATH_UPLOAD) + '/' + titleImg(title) + ".png"         // ganti setiap file yg di upload menjadi .png
+                const urlFile = await domainName + process.env.IMG_PATH_UPLOAD + titleImg(title) + '.png'                       // buat url untuk image tsb
   
                 const update = await models.Post.update({
                     post_title: title,
@@ -257,7 +265,8 @@ const updatePost = async (req, res) => {
                     
                     // delete image yg lama, dengan mengambil path yg lama pada column thumbnail_url
                     if(data.dataValues.thumbnail_url !== null){
-                        const imgPath = process.env.IMG_PATH_UPLOAD + titleImg(data.dataValues.post_title) + '.png'
+                        const imgName = path.basename(data.dataValues.thumbnail_url, '.png')                            // get filename yg berformat .png
+                        const imgPath = path.resolve(process.env.IMG_PATH_UPLOAD) + '/' + imgName + '.png'              // get full file path
 
                         await fs.unlink(imgPath, err => {
                             if(err){
@@ -270,7 +279,6 @@ const updatePost = async (req, res) => {
                     await fs.rename(tempPath, targetPath, err => {
                         if (err){
                             console.log(err);
-                            return res.send(500)
                         }
                     })
 
@@ -347,7 +355,8 @@ const deletePost = async (req, res) => {
     
             if(deleteData){
                 if(data.dataValues.thumbnail_url !== null){
-                    const imgPath = process.env.IMG_PATH_UPLOAD + titleImg(data.dataValues.post_title) + '.png'
+                    const imgName = path.basename(data.dataValues.thumbnail_url, '.png')                            // get filename yg berformat .png
+                    const imgPath = path.resolve(process.env.IMG_PATH_UPLOAD) + '/' + imgName + '.png'              // get full file path
 
                     fs.unlink(imgPath, err => {
                         if(err){
@@ -356,7 +365,7 @@ const deletePost = async (req, res) => {
                     })
                 }
 
-                return res.json({code: 0, message: 'data successfully deleted', data: deleteData})
+                return res.json({code: 0, message: 'data successfully deleted', data: data})
             }else{
                 return res.json({code: 1, message: 'data failed deleted', data: null})
             }
