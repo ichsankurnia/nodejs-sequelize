@@ -95,28 +95,12 @@ const createPost = async (req, res) => {
 
         // jika dalam request terdapat file
         if(req.file){
-            console.log(req.hostname)                   // 192.168.1.8
-            if(req.headers["x-forwarded-host"]){             // server
-                console.log(req.get('origin'))              // undifined
-                console.log(req.headers.origin)             // undifined
-                console.log(req.headers['x-forwarded-proto'])   // https
-                console.log(req.headers["x-forwarded-host"].split(',')[0])  // darkyasha.goes2nobel.com, darkyasha.goes2nobel.com
-                console.log(req.headers["x-forwarded-for"]) // 36.69.161.207, 36.69.161.207
-            }else{
-                console.log(req.get('host'))                // 192.168.1.8:3006
-                console.log(req.headers.host)               // 192.168.1.8:3006
-            }
-            console.log(req.connection.remoteAddress)   // ::ffff:192.168.1.8
-            console.log(req.socket.remoteAddress)       // ::ffff:192.168.1.8
-
-            console.log('__dirname :', __dirname)
-            console.log('req.path :', req.path)
 
             const domainName = await domain.getFullDomainURL(req)
 
             const tempPath = await req.file.path                                                                       // ambil file path setelah di upload di folder tmp
             const targetPath = await path.resolve(process.env.IMG_PATH_UPLOAD) + '/' + titleImg(title) + ".png"        // ganti setiap file yg di upload menjadi .png
-            const urlFile = await domainName + process.env.IMG_PATH_UPLOAD + titleImg(title) + '.png'                      // buat url untuk image tsb
+            const urlFile = await domainName + "/" + process.env.IMG_PATH_UPLOAD + titleImg(title) + '.png'                      // buat url untuk image tsb
             console.log(urlFile)
 
             const data = await models.Post.create({
@@ -228,7 +212,7 @@ const updatePost = async (req, res) => {
 
                 const tempPath = await req.file.path                                                                        // ambil file path setelah di upload di folder tmp
                 const targetPath = await path.resolve(process.env.IMG_PATH_UPLOAD) + '/' + titleImg(title) + ".png"         // ganti setiap file yg di upload menjadi .png
-                const urlFile = await domainName + process.env.IMG_PATH_UPLOAD + titleImg(title) + '.png'                       // buat url untuk image tsb
+                const urlFile = await domainName + "/" + process.env.IMG_PATH_UPLOAD + titleImg(title) + '.png'                       // buat url untuk image tsb
   
                 const update = await models.Post.update({
                     post_title: title,
